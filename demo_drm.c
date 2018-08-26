@@ -51,7 +51,7 @@ static void drm_init(struct drm* drm)
     if (drm->handle < 0)
     {
         assert(errno != ENOENT && "DRI device not found, have you enabled vc4 driver in /boot/config.txt?");
-        assert(errno != EACCES && "no permission to open DRI device");
+        assert(errno != EACCES && "no permission to open DRI device, is your user in 'video' group?");
         assert(!"cannot open DRI device");
     }
 
@@ -113,7 +113,7 @@ static void drm_init(struct drm* drm)
     assert(drm->surface && "cannot create GBM output surface");
 
     drm->waiting_for_flip = 0;
-    drm->last_bo = 0;
+    drm->last_bo = NULL;
 }
 
 static void drm_done(struct drm* drm)
@@ -134,14 +134,14 @@ static void drm_done(struct drm* drm)
 
 static void egl_init(struct drm* drm, struct egl* egl)
 {
+    // assume EGL_EXT_client_extensions is available
     // printf("EGL client extension = %s\n", eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
 
-    // assume EGL_EXT_client_extensions extension is present
-    // assume EGL_EXT_platform_base extension is present
+    // assume EGL_EXT_platform_base is available
     PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = (void*)eglGetProcAddress("eglGetPlatformDisplayEXT");
     PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC eglCreatePlatformWindowSurfaceEXT = (void*)eglGetProcAddress("eglCreatePlatformWindowSurfaceEXT");
 
-    // assume EGL_MESA_platform_gbm extension is present
+    // assume EGL_MESA_platform_gbm is available
     egl->display = eglGetPlatformDisplayEXT(EGL_PLATFORM_GBM_MESA, drm->device, NULL);
     assert(egl->display != EGL_NO_DISPLAY && "cannot get EGL display");
 
@@ -194,10 +194,10 @@ static void egl_init(struct drm* drm, struct egl* egl)
     {
         EGL_CONTEXT_CLIENT_VERSION, 2,
 
-        // from EGL_KHR_create_context
+        // use EGL_KHR_create_context if you want to debug context together with GL_KHR_debug
         // EGL_CONTEXT_FLAGS_KHR, EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR,
 
-        // from EGL_KHR_create_context_no_error
+        // use EGL_KHR_create_context_no_error for "production" builds, may improve performance
         // EGL_CONTEXT_OPENGL_NO_ERROR_KHR, EGL_TRUE,
 
         EGL_NONE,
@@ -311,8 +311,6 @@ static void output_present(struct drm* drm, struct egl* egl)
     drm->last_bo = bo;
 
     uint32_t fb = output_get_fb_from_bo(drm, bo);
-    assert(fb);
-
     if (drmModePageFlip(drm->handle, drm->crtc->crtc_id, fb, DRM_MODE_PAGE_FLIP_EVENT, &drm->waiting_for_flip) == 0)
     {
         drm->waiting_for_flip = 1;

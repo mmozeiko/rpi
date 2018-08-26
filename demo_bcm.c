@@ -112,13 +112,6 @@ static void egl_init(struct bcm* bcm, struct egl* egl)
     static const EGLint context_attrib[] =
     {
         EGL_CONTEXT_CLIENT_VERSION, 2,
-
-        // from EGL_KHR_create_context
-        // EGL_CONTEXT_FLAGS_KHR, EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR,
-
-        // from EGL_KHR_create_context_no_error
-        // EGL_CONTEXT_OPENGL_NO_ERROR_KHR, EGL_TRUE,
-
         EGL_NONE,
     };
     egl->context = eglCreateContext(egl->display, config, EGL_NO_CONTEXT, context_attrib);
