@@ -1,6 +1,6 @@
 # What is this?
 
-Various demos for RaspberryPi
+Various demos for RaspberryPi.
 
 # Compiling demos
 
@@ -95,7 +95,7 @@ have it enabled by default. Here are instructions how to compile mesa on your ho
 
     # mesa, remove "--disable-asm" for rpi2/rpi3
     cd mesa-18.2.0-rc4
-    LDFLAGS='-Wl,-rpath=\$$ORIGIN' CFLAGS='-DDEFAULT_DRIVER_DIR=\"\$$ORIGIN\"' \
+    LDFLAGS='-Wl,-rpath=\$$ORIGIN' CFLAGS="${CFLAGS} -DDEFAULT_DRIVER_DIR=\\\"\\\$\$ORIGIN\\\"" \
     ./configure --prefix="${PREFIX}" --host=arm-linux-gnueabihf --disable-asm \
       --with-platforms=drm --with-gallium-drivers=vc4 --without-dri-drivers \
       --enable-gbm --enable-egl --enable-gles2 --disable-gles1 --disable-glx \
@@ -126,4 +126,4 @@ Then upload & run the binary:
 
 You should see spinning triangle (rendering code is in `render.h` file).
 
-By default it enables vsync, to disable it change `ENABLE_VSYNC` value in demo_bcm.c file.
+By default it enables vsync, to disable it change `ENABLE_VSYNC` value in demo_drm.c file.
