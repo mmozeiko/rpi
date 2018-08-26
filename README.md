@@ -11,6 +11,18 @@ If you use raspbian you can use compiler from https://github.com/raspberrypi/too
     git clone --depth=1 https://github.com/raspberrypi/tools
     export PATH=`pwd`/tools/arm-bcm2708/arm-linux-gnueabihf/bin:"${PATH}"
 
+    # compiler settings for rpi0 & rpi1
+    export CFLAGS="-mcpu=arm1176jzf-s -mfpu=vfp"
+    export CXXFLAGS="${CFLAGS}"
+
+    # compiler settings for rpi2
+    # export CFLAGS="-mcpu=cortex-a7 -mfpu=neon-vfpv4 -mthumb"
+    # export CXXFLAGS="${CFLAGS}"
+
+    # compiler settings for rpi3
+    # export CFLAGS="-mcpu=cortex-a53 -mfpu=neon-fp-armv8 -mthumb"
+    # export CXXFLAGS="${CFLAGS}"
+
 # demo_bcm.c
 
 Shows how to use GLESv2 with RaspberyPi closed-source OpenGL driver.
@@ -59,18 +71,6 @@ have it enabled by default. Here are instructions how to compile mesa on your ho
     curl -Lf https://dri.freedesktop.org/libdrm/libdrm-2.4.93.tar.bz2 | tar -xj
     curl -Lf https://mesa.freedesktop.org/archive/mesa-18.2.0-rc4.tar.xz | tar -xJ
     
-    # compiler settings for rpi0 & rpi1
-    export CFLAGS="-mcpu=arm1176jzf-s -mfpu=vfp"
-    export CXXFLAGS="${CFLAGS}"
-
-    # compiler settings for rpi2
-    # export CFLAGS="-mcpu=cortex-a7 -mfpu=neon-vfpv4 -mthumb"
-    # export CXXFLAGS="${CFLAGS}"
-
-    # compiler settings for rpi3
-    # export CFLAGS="-mcpu=cortex-a53 -mfpu=neon-fp-armv8 -mthumb"
-    # export CXXFLAGS="${CFLAGS}"
-
     # zlib
     cd zlib-1.2.11
     LDFLAGS='-Wl,-rpath=\$$ORIGIN' CHOST=arm-linux-gnueabihf ./configure --prefix="${PREFIX}"
@@ -107,7 +107,7 @@ have it enabled by default. Here are instructions how to compile mesa on your ho
     # remove debugging informaton to have smaller binaries
     arm-linux-gnueabihf-strip --strip-unneeded "${PREFIX}"/lib/*.so "${PREFIX}"/lib/dri/*.so
 
-Now you'll have bunch of binaries in "${PREFIX}" folder. Copy them to your RaspberryPi:
+Now you'll have bunch of binaries in `${PREFIX}` folder. Copy them to your RaspberryPi:
 
     scp "${PREFIX}"/lib/{dri/vc4_dri.so,libEGL.so.1,libGLESv2.so.2,libgbm.so.1,libglapi.so.0,libdrm.so.2,libexpat.so.1,libz.so.1} pi@raspberrypi.local:
 
