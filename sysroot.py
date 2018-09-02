@@ -18,7 +18,10 @@ RASPBIAN_MAIN = "http://raspbian.raspberrypi.org/raspbian"
 ALARM = "http://mirror.archlinuxarm.org"
 ALARM_REPOS = ["alarm", "core", "extra", "community"]
 
-IGNORED_PACKAGES = ["sh"]
+IGNORED_PACKAGES = [
+  "raspberrypi-bootloader", "libasan3", "libubsan0", "libgomp1", "libatomic1",
+  "sh", "filesystem", "tzdata", "iana-etc",
+]
 
 # db is dict from package name to two element list - url and list of dependencies
 def raspbian_collect_packages(url, version, db):
