@@ -7,10 +7,11 @@
 #include <signal.h>
 
 #include <bcm_host.h>
+
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
-#include "render.h"
+#include "../common/render.h"
 
 ///////////////////////////
 const int ENABLE_VSYNC = 1;
@@ -37,9 +38,19 @@ static void bcm_init(struct bcm* bcm)
 
     uint32_t screen = 0;
 
-    uint32_t width, height;
-    int ok = graphics_get_display_size(screen, &width, &height);
-    assert(ok == 0 && "failed to get current display size");
+    // TODO: other intersting stuff to look at:
+    // vc_tv_register_callback - registers callback to detect HDMI disconnect event
+    // vc_tv_hdmi_get_supported_modes_new - gets supported HDMI output modes
+    // vc_tv_hdmi_power_on_explicit_new - set specific HDMI output mode
+
+    TV_DISPLAY_STATE_T state;
+    int ok = vc_tv_get_display_state(&state);
+    assert(ok == 0 && "cannot get current HDMI mode");
+
+    uint32_t width = state.display.hdmi.width;
+    uint32_t height = state.display.hdmi.height;
+
+    printf("HDMI output = %ux%u@%u\n", width, height, state.display.hdmi.frame_rate);
 
     VC_RECT_T dst = { 0, 0, width, height };
     VC_RECT_T src = { 0, 0, width << 16, height << 16 };
@@ -73,6 +84,8 @@ static void egl_init(struct bcm* bcm, struct egl* egl)
 {
     // printf("EGL client extension = %s\n", eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
 
+    // if this function fails with "* failed to add service - already in use?" text on output
+    // this probably means you have vc4 driver loaded in /boot/config.txt, remove it
     egl->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     assert(egl->display != EGL_NO_DISPLAY && "cannot get EGL display");
 
@@ -140,8 +153,9 @@ static void output_present(struct egl* egl)
 
 static volatile int quit;
 
-static void on_sigint(int dummy)
+static void on_sigint(int num)
 {
+    (void)num;
     quit = 1;
 }
 

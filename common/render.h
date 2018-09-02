@@ -1,5 +1,7 @@
 #pragma once
 
+// make sure you have GL defines and GL functions available globally to use this file
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>

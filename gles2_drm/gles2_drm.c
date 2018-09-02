@@ -18,7 +18,7 @@
 #include <EGL/eglext.h>
 #include <GLES2/gl2.h>
 
-#include "render.h"
+#include "../common/render.h"
 
 ///////////////////////////
 const int ENABLE_VSYNC = 1;
@@ -26,7 +26,7 @@ const int ENABLE_VSYNC = 1;
 
 struct drm
 {
-    int handle;
+    int fd;
 
     struct gbm_device* device;
     struct gbm_surface* surface;
@@ -47,24 +47,24 @@ struct egl
 
 static void drm_init(struct drm* drm)
 {
-    drm->handle = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
-    if (drm->handle < 0)
+    drm->fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+    if (drm->fd < 0)
     {
-        assert(errno != ENOENT && "DRI device not found, have you enabled vc4 driver in /boot/config.txt?");
+        assert(errno != ENOENT && "DRI device not found, have you enabled vc4 driver in /boot/config.txt file?");
         assert(errno != EACCES && "no permission to open DRI device, is your user in 'video' group?");
         assert(!"cannot open DRI device");
     }
 
-    drm->device = gbm_create_device(drm->handle);
+    drm->device = gbm_create_device(drm->fd);
     assert(drm->device && "cannot create GBM device");
 
-    drmModeRes* resources = drmModeGetResources(drm->handle);
+    drmModeRes* resources = drmModeGetResources(drm->fd);
     assert(resources && "cannot get device resources");
 
     drmModeConnector* connector = NULL;
     for (int i=0; i<resources->count_connectors; i++)
     {
-        connector = drmModeGetConnector(drm->handle, resources->connectors[i]);
+        connector = drmModeGetConnector(drm->fd, resources->connectors[i]);
         if (connector)
         {
             if (connector->connection == DRM_MODE_CONNECTED && connector->count_modes > 0)
@@ -81,7 +81,7 @@ static void drm_init(struct drm* drm)
     drmModeEncoder* encoder = NULL;
     for (int i=0; i<resources->count_encoders; i++)
     {
-        encoder = drmModeGetEncoder(drm->handle, resources->encoders[i]);
+        encoder = drmModeGetEncoder(drm->fd, resources->encoders[i]);
         if (encoder)
         {
             if (encoder->encoder_id == connector->encoder_id)
@@ -94,8 +94,10 @@ static void drm_init(struct drm* drm)
     }
     assert(encoder && "cannot find mode encoder");
 
-    drm->crtc = drmModeGetCrtc(drm->handle, encoder->crtc_id);
+    drm->crtc = drmModeGetCrtc(drm->fd, encoder->crtc_id);
     assert(drm->crtc && "cannot get current CRTC");
+
+    // printf("Display mode = %ux%u@%u\n", drm->crtc->width, drm->crtc->height, drm->crtc->mode.vrefresh);
 
     drmModeFreeEncoder(encoder);
     drmModeFreeConnector(connector);
@@ -118,7 +120,7 @@ static void drm_init(struct drm* drm)
 
 static void drm_done(struct drm* drm)
 {
-    drmModeSetCrtc(drm->handle, drm->crtc->crtc_id, drm->crtc->buffer_id,
+    drmModeSetCrtc(drm->fd, drm->crtc->crtc_id, drm->crtc->buffer_id,
         drm->crtc->x, drm->crtc->y, &drm->connector_id, 1, &drm->crtc->mode);
     drmModeFreeCrtc(drm->crtc);
 
@@ -129,7 +131,7 @@ static void drm_done(struct drm* drm)
 
     gbm_surface_destroy(drm->surface);
     gbm_device_destroy(drm->device);
-    close(drm->handle);
+    close(drm->fd);
 }
 
 static void egl_init(struct drm* drm, struct egl* egl)
@@ -235,12 +237,12 @@ static uint32_t output_get_fb_from_bo(struct drm* drm, struct gbm_bo* bo)
     uint32_t width = gbm_bo_get_width(bo);
     uint32_t height = gbm_bo_get_height(bo);
     uint32_t stride = gbm_bo_get_stride(bo);
-    uint32_t handle = gbm_bo_get_handle(bo).u32;
+    uint32_t fd = gbm_bo_get_handle(bo).u32;
 
-    int ok = drmModeAddFB(drm->handle, width, height, 24, 32, stride, handle, &fb);
+    int ok = drmModeAddFB(drm->fd, width, height, 24, 32, stride, fd, &fb);
     assert(ok == 0 && "cannot add DRM framebuffer");
 
-    ok = drmModeSetCrtc(drm->handle, drm->crtc->crtc_id, fb, 0, 0, &drm->connector_id, 1, &drm->crtc->mode);
+    ok = drmModeSetCrtc(drm->fd, drm->crtc->crtc_id, fb, 0, 0, &drm->connector_id, 1, &drm->crtc->mode);
     assert(ok == 0 && "cannot set CRTC for DRM framebuffer");
     
     gbm_bo_set_user_data(bo, (void*)(uintptr_t)fb, output_destroy_bo);
@@ -249,6 +251,10 @@ static uint32_t output_get_fb_from_bo(struct drm* drm, struct gbm_bo* bo)
 
 static void output_page_flipped_handler(int fd, unsigned int sequence, unsigned int sec, unsigned int usec, void* user)
 {
+    (void)fd;
+    (void)sequence;
+    (void)sec;
+    (void)usec;
     int* waiting_for_flip = user;
     *waiting_for_flip = 0;
 }
@@ -263,7 +269,7 @@ static int output_wait_for_flip(struct drm* drm, int timeout)
     while (drm->waiting_for_flip)
     {
         struct pollfd p = {
-            .fd = drm->handle,
+            .fd = drm->fd,
             .events = POLLIN,
         };
         if (poll(&p, 1, timeout) < 0)
@@ -278,7 +284,7 @@ static int output_wait_for_flip(struct drm* drm, int timeout)
 
         if (p.revents & POLLIN)
         {
-            drmHandleEvent(drm->handle, &ctx);
+            drmHandleEvent(drm->fd, &ctx);
         }
         else
         {
@@ -311,7 +317,7 @@ static void output_present(struct drm* drm, struct egl* egl)
     drm->last_bo = bo;
 
     uint32_t fb = output_get_fb_from_bo(drm, bo);
-    if (drmModePageFlip(drm->handle, drm->crtc->crtc_id, fb, DRM_MODE_PAGE_FLIP_EVENT, &drm->waiting_for_flip) == 0)
+    if (drmModePageFlip(drm->fd, drm->crtc->crtc_id, fb, DRM_MODE_PAGE_FLIP_EVENT, &drm->waiting_for_flip) == 0)
     {
         drm->waiting_for_flip = 1;
     }
@@ -319,8 +325,9 @@ static void output_present(struct drm* drm, struct egl* egl)
 
 static volatile int quit;
 
-static void on_sigint(int dummy)
+static void on_sigint(int num)
 {
+    (void)num;
     quit = 1;
 }
 

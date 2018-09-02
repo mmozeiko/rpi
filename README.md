@@ -1,129 +1,74 @@
-# What is this?
+# Raspberry Pi
 
-Various demos for RaspberryPi.
+Various stuff with Raspberry Pi.
 
-# Compiling demos
+# Setting up toolchain
 
-You need to get gcc for OS you are running on your RaspberryPi.
+Demos in this repository requires clang toolchain that can target your distribution.
+Following scripts will help you to compile clang on your GNU/Linux desktop for
+targeting Raspberry Pi with [Raspbian][raspbian] or [Arch Linux ARM][alarm] distributions:
 
-If you use raspbian you can use compiler from https://github.com/raspberrypi/tools
+* `setup.sh` - sets up generic environment variables for specific distribution and Pi
+* `sysroot.py` - unpacks raspbian or alarm packages in sysroot
+* `bootstrap.sh` - compiles clang toolchain
 
-    git clone --depth=1 https://github.com/raspberrypi/tools
-    export PATH=`pwd`/tools/arm-bcm2708/arm-linux-gnueabihf/bin:"${PATH}"
+First you need to set up environment variables by sourcing `setup.sh` file:
 
-    # compiler settings for rpi0 & rpi1
-    export CFLAGS="-mcpu=arm1176jzf-s -mfpu=vfp"
-    export CXXFLAGS="${CFLAGS}"
+    source setup.sh <distro> <pi_version>
 
-    # compiler settings for rpi2
-    # export CFLAGS="-mcpu=cortex-a7 -mfpu=neon-vfpv4 -mthumb"
-    # export CXXFLAGS="${CFLAGS}"
+Where `distro` is `raspbian` for Rasbian, or `alarm` for Arch Linux ARM.
+`pi_version` is which Raspberry Pi you want to target - `pi1`, `pi2`, `pi3` or `pi3-64`.
+pi3-64 is available only for Arch Linux ARM.
 
-    # compiler settings for rpi3
-    # export CFLAGS="-mcpu=cortex-a53 -mfpu=neon-fp-armv8 -mthumb"
-    # export CXXFLAGS="${CFLAGS}"
+This script will also set necessary environment variables for [pkg-config][pkgconfig] to work.
 
-# demo_bcm.c
+Remember to source it every time you want to use clang for compiling your code.
 
-Shows how to use GLESv2 with RaspberyPi closed-source OpenGL driver.
+Next install basic packages (like C runtime) in sysroot with help of `sysroot.py` script.
+For example, for Rasbian use this:
 
-Make sure you don't have `dtoverlay=vc4-...` in your `/boot/config.txt`.
+    python ./sysroot.py --distro raspbian --sysroot "${SYSROOT}" libc6-dev libstdc++-6-dev
 
-First you need to get RaspberryPI vc includes and libraries on your host.
-For raspbian you can download them from https://github.com/raspberrypi/firmware
+Example for Arch Linux ARM:
 
-    git clone -b stable --depth=1 https://github.com/raspberrypi/firmware
-    export FIRMWARE=`pwd`/firmware/hardfp
-    export PKG_CONFIG_SYSROOT_DIR="${FIRMWARE}"
-    export PKG_CONFIG_PATH="${FIRMWARE}"/opt/vc/lib/pkgconfig
+    python ./sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" glibc gcc
 
-Now you can compile the demo:
+This will create `sysroot` folder with development header files and libraries targeting your
+choice of distribution and target architecutre. You'll need to repeat this process in case
+you run `setup.sh` again with different distro/pi_version arguments. Each sysroot is setup
+in separate folder.
 
-    arm-linux-gnueabihf-gcc -o demo_bcm demo_bcm.c ${CFLAGS} -std=gnu99 -O2 -Wall \
-      -lm `pkg-config --cflags --libs brcmegl brcmglesv2`
+Now execute `bootstrap.sh` script to compile clang:
 
-Then upload & run the binary:
+    ./bootstrap.sh
 
-    scp demo_bcm pi@raspberrypi.local:
-    ssh -t pi@raspberrypi.local ./demo_bcm
+This will create `toolchain` folder where it will install [clang compiler][clang] and [lld linker][lld] .
+Clang will be built for target ARM and AArch64 targets. To use it in your code use `${CC}`
+and `${CXX}` variables for path to C and C++ compilers.
 
-You should see spinning triangle (rendering code is in `render.h` file).
+# Demos
 
-By default it enables vsync, to disable it change `ENABLE_VSYNC` value in demo_bcm.c file.
+Currently available demos:
 
-# demo_drm.c
+* [tree/master/gles2_bcm][gles2_bcm] - example how to use GLES2 for Broadcom's propriatery OpenGL driver
+* [tree/master/gles2_drm][gles2_drm] - example how to use GLES2 for open-source vc4 OpenGL driver with libdrm & mesa
 
-Shows how to use GLESv2 with vc4 open-source driver & mesa/gmb/kms/drm libraries.
+# /boot/config.txt stuff
 
-Make sure you enable vc4 driver in `/boot/config.txt`, put `dtoverlay=vc4-fkms-v3d` in config file.
+`gpu_mem=128` - how much memoy to allocate for GPU in MiB
 
-You'll need to get up to date mesa library that has vc4 driver backend. Raspbian does not
-have it enabled by default. Here are instructions how to compile mesa on your host machine:
+`dtoverlay=vc4-fkms-v3d` - enables open-source OpenGL driver
 
-    # where to place binaries, unset sysroot dir in case it was set from demo_bcm section
-    export PREFIX=`pwd`/prefix
-    export PKG_CONFIG_PATH="${PREFIX}"/lib/pkgconfig
-    unset PKG_CONFIG_SYSROOT_DIR
-    
-    # download source code
-    curl -Lf https://zlib.net/zlib-1.2.11.tar.xz | tar -xJ
-    curl -Lf https://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2 | tar -xj
-    curl -Lf https://dri.freedesktop.org/libdrm/libdrm-2.4.93.tar.bz2 | tar -xj
-    curl -Lf https://mesa.freedesktop.org/archive/mesa-18.2.0-rc4.tar.xz | tar -xJ
-    
-    # zlib
-    cd zlib-1.2.11
-    LDFLAGS='-Wl,-rpath=\$$ORIGIN' CHOST=arm-linux-gnueabihf ./configure --prefix="${PREFIX}"
-    make install -j`nproc`
-    cd ..
+`hdmi_force_hotplug=1` - HDMI always enabled
 
-    # expat
-    cd expat-2.2.6
-    LDFLAGS='-Wl,-rpath=\$$ORIGIN' \
-    ./configure --prefix="${PREFIX}" --host=arm-linux-gnueabihf --without-xmlwf
-    make install -j`nproc`
-    cd ..
+`hdmi_group=2` - sets HDMI mode
 
-    # libdrm
-    cd libdrm-2.4.93
-    LDFLAGS='-Wl,-rpath=\$$ORIGIN' \
-    ./configure --prefix="${PREFIX}" --host=arm-linux-gnueabihf --enable-libkms --enable-vc4 \
-      --disable-intel --disable-radeon --disable-amdgpu --disable-nouveau --disable-vmwgfx \
-      --disable-freedreno --disable-cairo-tests --disable-valgrind --disable-manpages
-    make install -j`nproc`
-    cd ..
+`hdmi_mode=82` - forces 1920x1080@60 HDMI mode
 
-    # mesa, remove "--disable-asm" for rpi2/rpi3
-    cd mesa-18.2.0-rc4
-    LDFLAGS='-Wl,-rpath=\$$ORIGIN' CFLAGS="${CFLAGS} -DDEFAULT_DRIVER_DIR=\\\"\\\$\$ORIGIN\\\"" \
-    ./configure --prefix="${PREFIX}" --host=arm-linux-gnueabihf --disable-asm \
-      --with-platforms=drm --with-gallium-drivers=vc4 --without-dri-drivers \
-      --enable-gbm --enable-egl --enable-gles2 --disable-gles1 --disable-glx \
-      --disable-osmesa --disable-libunwind --disable-dri3 --disable-llvm \
-      --disable-valgrind --disable-xa --disable-xvmc --disable-vdpau --disable-va
-    make install -j`nproc`
-    cd ..
+`disable_overscan=0` - disables HDMI overscan
 
-    # remove debugging informaton to have smaller binaries
-    arm-linux-gnueabihf-strip --strip-unneeded "${PREFIX}"/lib/*.so "${PREFIX}"/lib/dri/*.so
-
-Now you'll have bunch of binaries in `${PREFIX}` folder. Copy them to your RaspberryPi:
-
-    scp "${PREFIX}"/lib/{dri/vc4_dri.so,libEGL.so.1,libGLESv2.so.2,libgbm.so.1,libglapi.so.0,libdrm.so.2,libexpat.so.1,libz.so.1} pi@raspberrypi.local:
-
-All .so files need to be in same folder where executable will be placed for it to work.
-
-Then you can compile `demo_drm.c` file:
-
-    arm-linux-gnueabihf-gcc -o demo_drm demo_drm.c ${CFLAGS} -std=gnu99 -O2 -Wall \
-      -lm `pkg-config --cflags --libs egl glesv2 libdrm gbm` \
-      -Wl,-rpath,'$ORIGIN',--unresolved-symbols=ignore-in-shared-libs
-
-Then upload & run the binary:
-
-    scp demo_drm pi@raspberrypi.local:
-    ssh -t pi@raspberrypi.local ./demo_drm
-
-You should see spinning triangle (rendering code is in `render.h` file).
-
-By default it enables vsync, to disable it change `ENABLE_VSYNC` value in demo_drm.c file.
+[clang]: https://clang.llvm.org/
+[lld]: https://lld.llvm.org/
+[raspbian]: https://www.raspberrypi.org/downloads/raspbian/
+[alarm]: https://archlinuxarm.org/
+[pkgconfig]: https://www.freedesktop.org/wiki/Software/pkg-config/
