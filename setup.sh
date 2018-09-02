@@ -8,7 +8,7 @@ Usage: setup.sh <distro> <target>
 
 <distro>
     raspbian - uses Rasbian sysroot
-    alarm - uses ArchLinux ARM sysroot
+    alarm - uses Arch Linux ARM sysroot
 
 <target>
     pi1 - armv6 code for Pi 0 and Pi 1
@@ -53,7 +53,7 @@ fi
 # this is folder where clang & lld will live, created by ./bootstrap.sh
 export TOOLCHAIN="${ROOT}"/toolchain
 
-# this is sysroot which your need to download with ./sysroot.py script
+# this is sysroot which you need to download with ./sysroot.py script
 export SYSROOT="${ROOT}"/sysroot/$1-$2
 
 # use these env variables in your scripts / buildsystem for compiler/linker

@@ -20,7 +20,8 @@ Where `distro` is `raspbian` for Rasbian, or `alarm` for Arch Linux ARM.
 `pi_version` is which Raspberry Pi you want to target - `pi1`, `pi2`, `pi3` or `pi3-64`.
 pi3-64 is available only for Arch Linux ARM.
 
-This script will also set necessary environment variables for [pkg-config][pkgconfig] to work.
+This script will also set necessary environment variables for [pkg-config][pkgconfig] to
+work - it will use only packages from sysroot folder, not from your host folder.
 
 Remember to source it every time you want to use clang for compiling your code.
 
@@ -33,8 +34,11 @@ Example for Arch Linux ARM:
 
     python ./sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" glibc gcc
 
-This will create `sysroot` folder with development header files and libraries targeting your
-choice of distribution and target architecutre. You'll need to repeat this process in case
+Make sure you have `dpkg-deb` executable available if you are targeting rasbian (on Arch
+install it from AUR).
+
+This script will create `sysroot` folder with development header files and libraries targeting
+your choice of distribution and target architecutre. You'll need to repeat this process in case
 you run `setup.sh` again with different distro/pi_version arguments. Each sysroot is setup
 in separate folder.
 

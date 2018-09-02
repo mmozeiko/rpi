@@ -17,8 +17,9 @@ make -j`nproc`
 make -j`nproc` install DESTDIR="${SYSROOT}"
 cd ..
 
-# mesa seems want try to use inline NEON code when compiling for ARM
-# allow inline ARM code only when NEON is allowed (rpi2 & rpi3)
+# mesa seems to want to always use inline ARM NEON code when compiling for
+# any ARM target, but armv6 does not support NEON
+# we want to disable inline ARM NEON code unless NEON is allowed (rpi2 & rpi3)
 if [[ `cat ${CC}` = *"neon"* ]] ||  [[ `cat ${CC}` = *"armv8-a"* ]]; then
     DISABLE_ASM=
 else
