@@ -50,8 +50,8 @@ and `${CXX}` variables for path to C and C++ compilers.
 
 Currently available demos:
 
-* [tree/master/gles2_bcm][gles2_bcm] - example how to use GLES2 for Broadcom's propriatery OpenGL driver
-* [tree/master/gles2_drm][gles2_drm] - example how to use GLES2 for open-source vc4 OpenGL driver with libdrm & mesa
+* [gles2_bcm](gles2_bcm) - example how to use GLES2 for Broadcom's propriatery OpenGL driver
+* [gles2_drm](gles2_drm) - example how to use GLES2 for open-source vc4 OpenGL driver with libdrm & mesa
 
 # /boot/config.txt stuff
 
