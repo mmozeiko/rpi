@@ -3,8 +3,6 @@
 from urllib.request import urlopen, urlretrieve
 from urllib.parse import urlparse
 from gzip import GzipFile
-from collections import namedtuple
-from tempfile import NamedTemporaryFile
 from pathlib import Path
 import subprocess 
 import tarfile
@@ -20,7 +18,9 @@ RASPBIAN_MAIN = "http://raspbian.raspberrypi.org/raspbian"
 ALARM = "http://mirror.archlinuxarm.org"
 ALARM_REPOS = ["alarm", "core", "extra", "community"]
 
+IGNORED_PACKAGES = ["sh"]
 
+# db is dict from package name to two element list - url and list of dependencies
 def raspbian_collect_packages(url, version, db):
   with urlopen(f"{url}/dists/{version}/main/binary-armhf/Packages.gz") as req:
     with GzipFile(fileobj=req) as gz:
@@ -96,15 +96,16 @@ def resolve(package, packages, db):
     return
   packages.add(package)
   for dep in db[package][1]:
-    if dep not in ["sh"]:
+    if dep not in IGNORED_PACKAGES:
       resolve(dep, packages, db)
 
 
 def install(distro, version, target, sysroot, packages):
 
-  cache = os.path.join(sysroot, ".db.pickle")
+  sysroot = Path(sysroot)
+  cache = sysroot / ".db.pickle"
 
-  if os.path.isfile(cache):
+  if cache.is_file():
     print("Loading package database...")
     
     with open(cache, "rb") as f:
@@ -151,9 +152,9 @@ def install(distro, version, target, sysroot, packages):
   for i, pkg in enumerate(process):
     print(f"({i+1}/{len(process)}) {pkg}")
     url = db[pkg][0]
-    name = os.path.join(sysroot, os.path.basename(urlparse(url).path))
+    name = sysroot / Path(urlparse(url).path).name
 
-    if not os.path.isfile(name):
+    if not name.is_file():
       urlretrieve(url, name)
 
       if distro == "raspbian":
@@ -164,16 +165,14 @@ def install(distro, version, target, sysroot, packages):
 
   print("Fixing symlinks...")
 
-  for dirname, dirnames, filenames in os.walk(sysroot):
-    for filename in filenames:
-      path = os.path.join(dirname, filename)
-      if os.path.islink(path):
-        link = os.readlink(path)
-        if link[0] == os.path.sep:
-          fulllink = os.path.normpath(os.path.join(sysroot, "." + link))
-          fixed = os.path.relpath(fulllink, dirname)
-          os.unlink(path)
-          os.symlink(fixed, path)
+  for p in sysroot.glob("**/*"):
+    if p.is_symlink():
+      link = os.readlink(p)
+      if Path(link).is_absolute():
+        full = sysroot / ("." + link)
+        fixed = os.path.relpath(full.resolve(), p.parent)
+        p.unlink()
+        p.symlink_to(fixed)
 
   print("Done!")
 
