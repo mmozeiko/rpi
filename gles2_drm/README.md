@@ -2,13 +2,14 @@
 
 Example how to do GLES2 rendering with open-source [vc4] OpenGL driver by using [libdrm][libdrm] and [mesa][mesa].
 
-This is only way how to do OpenGL rendering on 64-bit Arch Linux ARM.
+This is only way how to do hardware accelerated OpenGL rendering on 64-bit Arch Linux ARM.
 
 # Preparations
 
-We will build our own mesa library, to have the latest version and to not depend on X11 libraries.
+We will build our own mesa library, to have the latest version and to not depend on X11 libraries. Raspbian mesa
+package does not even have vc4 backend.
 
-First install necessary development files in sysroot.
+First install necessary development files for libdrm and mesa in sysroot - they require zlib and expat libraries.
 
 For Raspbian do:
 

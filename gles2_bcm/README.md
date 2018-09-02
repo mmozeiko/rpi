@@ -2,7 +2,7 @@
 
 Example how to do GLES2 rendering with Broadcom proprietary OpenGL driver.
 
-This driver is available in Raspbian or 32-bit based Arch Linux ARM (armv6 & armv7) distributions.
+This driver is available in Raspbian and 32-bit based Arch Linux ARM (armv6 & armv7) distributions.
 
 # Preparations
 
