@@ -46,9 +46,10 @@ Now execute `bootstrap.sh` script to compile clang:
 
     ./bootstrap.sh
 
-This will create `toolchain` folder where it will install [clang compiler][clang] and [lld linker][lld] .
-Clang will be built for target ARM and AArch64 targets. To use it in your code use `${CC}`
-and `${CXX}` variables for path to C and C++ compilers.
+This script requires **gcc** based buildsystem and **cmake** on your host machine. It will create
+`toolchain` folder where it will install [clang compiler][clang] and [lld linker][lld]. Clang
+will be built for ARM and AArch64 targets. To use it in your code use `${CC}` and `${CXX}`
+variables for path to C and C++ compilers.
 
 # Demos
 

@@ -23,6 +23,7 @@ Remember to install `zlib1g` and `libexpat1` for Raspbian or `zlib` and `expat` 
 your device.
 
 Now execute `./build.sh` script. This will download and build libdrm and mesa libraries in `${SYSROOT}/usr/local`.
+This script requires **chrpath** so it can modify rpath for newly built libraries.
 
 When it finishes, upload them to your Raspberry Pi, in this example we will put them in home folder:
 
