@@ -5,8 +5,8 @@ will set up EGL context either with Broadcom or with vc4/mesa driver.
 
 # Requirements
 
-Check the readme files for `gles2_bcm` and `gles2_drm` demos in parent folder for
-setting up required libraries and development header files.
+Check the readme files for [gles2_bcm](../gles2_bcm) and [gles2_drm](../gles2_drm)
+demos in parent folder for setting up required libraries and development header files.
 
 # Compiling & running 
 
