@@ -16,7 +16,7 @@ Usage: setup.sh <distro> <target>
     pi3 - armv7 code for Pi 3
     pi3-64 - armv8 code for Pi 3
 EOF
-    exit 1
+    return 1
 fi
 
 if [ "$1" == "raspbian" ]; then 
@@ -30,11 +30,11 @@ elif [ "$1" == "alarm" ]; then
         export TARGET=aarch64-unknown-linux-gnu
     else
         echo "ERROR: Unknown $2 target!"
-        exit 1
+        return 1
     fi
 else
     echo "ERROR: Unknown $1 distribution!"
-    exit 1
+    return 1
 fi
 
 if [ "$2" == "pi1" ]; then
@@ -47,7 +47,7 @@ elif [ "$2" == "pi3-64" ]; then
     RPI_CFLAGS="-march=armv8-a -mcpu=cortex-a53"
 else
     echo "ERROR: Unknown $2 distribution!"
-    exit 1
+    return 1
 fi
 
 # this is folder where clang & lld will live, created by ./bootstrap.sh
