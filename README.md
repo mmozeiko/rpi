@@ -57,6 +57,7 @@ Currently available demos:
 
 * [gles2_bcm](gles2_bcm) - how to use GLES2 for Broadcom's propriatery OpenGL driver
 * [gles2_drm](gles2_drm) - how to use GLES2 for open-source vc4 OpenGL driver with libdrm & mesa
+* [gles2](gles2) - how to use GLES2 with any of two OpenGL drivers
 
 # /boot/config.txt stuff
 
