@@ -13,11 +13,11 @@ First install necessary development files for libdrm and mesa in sysroot - they 
 
 For Raspbian do:
 
-    python3 ../sysroot.py --distro raspbian --sysroot "${SYSROOT}" zlib1g-dev libexpat1-dev
+    ../sysroot.py --distro raspbian --sysroot "${SYSROOT}" zlib1g-dev libexpat1-dev
 
 For Arch Linux ARM:
 
-    python3 ../sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" zlib expat
+    ../sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" zlib expat
 
 Remember to install `zlib1g` and `libexpat1` for Raspbian or `zlib` and `expat` packages for Arch Linux ARM on
 your device.

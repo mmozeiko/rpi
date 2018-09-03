@@ -28,11 +28,11 @@ Remember to source it every time you want to use clang for compiling your code.
 Next install basic packages (like C runtime) in sysroot with help of `sysroot.py` script.
 For example, for Rasbian use this:
 
-    python3 ./sysroot.py --distro raspbian --sysroot "${SYSROOT}" libc6-dev libstdc++-6-dev
+    ./sysroot.py --distro raspbian --sysroot "${SYSROOT}" libc6-dev libstdc++-6-dev
 
 Example for Arch Linux ARM:
 
-    python3 ./sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" glibc gcc
+    ./sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" glibc gcc
 
 Make sure you have `dpkg-deb` executable available if you are targeting rasbian (on Arch
 install it from AUR).

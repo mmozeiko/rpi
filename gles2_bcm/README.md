@@ -10,11 +10,11 @@ First install necessary development files in sysroot.
 
 For Raspbian do:
 
-    python ../sysroot.py --distro raspbian --sysroot "${SYSROOT}" libraspberrypi-dev
+    ../sysroot.py --distro raspbian --sysroot "${SYSROOT}" libraspberrypi-dev
 
 For Arch Linux ARM:
 
-    python ../sysroot.py --distro alarm --target "${TARGET}" --sysroot "${SYSROOT}" raspberrypi-firmware
+    ../sysroot.py --distro alarm --target "${TARGET}" --sysroot "${SYSROOT}" raspberrypi-firmware
 
 Make sure your Raspberry Pi has not loaded open-source vc4 OpenGL driver. Check `/boot/config.txt` file,
 it must not have `dtoverlay=vc4-fkms-v3d` or `dtoverlay=vc4-kms-v3d` setting enabled.
