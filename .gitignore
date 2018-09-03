@@ -1,3 +1,6 @@
 toolchain
 sysroot
 **/*.exe
+llvm.build/
+llvm.src/
+
