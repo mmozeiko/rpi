@@ -1,6 +1,11 @@
 #!/bin/bash
 
-ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+if [[ "${BASH_SOURCE}" == "${0}" ]]; then
+  echo "You need to source, not run this script!"
+  exit 1
+fi
+
+ROOT="$( cd "$( dirname "${BASH_SOURCE}" )" >/dev/null && pwd )"
 
 if [ "$#" != 2 ]; then
     cat <<EOF
@@ -46,7 +51,7 @@ elif [ "$2" == "pi3" ]; then
 elif [ "$2" == "pi3-64" ]; then
     RPI_CFLAGS="-march=armv8-a -mcpu=cortex-a53"
 else
-    echo "ERROR: Unknown $2 distribution!"
+    echo "ERROR: Unknown $2 target!"
     return 1
 fi
 
