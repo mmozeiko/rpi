@@ -49,7 +49,7 @@ elif [ "$2" == "pi2" ]; then
 elif [ "$2" == "pi3" ]; then
     RPI_CFLAGS="-mcpu=cortex-a53 -mfpu=neon-fp-armv8 -mthumb"
 elif [ "$2" == "pi3-64" ]; then
-    RPI_CFLAGS="-march=armv8-a -mcpu=cortex-a53"
+    RPI_CFLAGS="-mcpu=cortex-a53"
 else
     echo "ERROR: Unknown $2 target!"
     return 1
