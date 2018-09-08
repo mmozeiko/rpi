@@ -50,7 +50,7 @@ static void bcm_init(struct bcm* bcm)
     uint32_t width = state.display.hdmi.width;
     uint32_t height = state.display.hdmi.height;
 
-    printf("HDMI output = %ux%u@%u\n", width, height, state.display.hdmi.frame_rate);
+    // printf("HDMI output = %ux%u@%u\n", width, height, state.display.hdmi.frame_rate);
 
     VC_RECT_T dst = { 0, 0, width, height };
     VC_RECT_T src = { 0, 0, width << 16, height << 16 };
