@@ -2,6 +2,7 @@
 
 Various stuff with Raspberry Pi.
 
+
 # Setting up toolchain
 
 Demos in this repository requires clang toolchain that can target your distribution.
@@ -51,6 +52,7 @@ This script requires **gcc** based buildsystem and **cmake** on your host machin
 will be built for ARM and AArch64 targets. To use it in your code use `${CC}` and `${CXX}`
 variables for path to C and C++ compilers.
 
+
 # Demos
 
 Currently available demos:
@@ -58,6 +60,15 @@ Currently available demos:
 * [gles2_bcm](gles2_bcm) - how to use GLES2 for Broadcom's propriatery OpenGL driver
 * [gles2_drm](gles2_drm) - how to use GLES2 for open-source vc4 OpenGL driver with libdrm & mesa
 * [gles2](gles2) - how to use GLES2 with any of two OpenGL drivers
+
+
+# Useful info about Raspberry Pi
+
+To check which Pi you have, check contents of `/proc/device-tree/model` file. Alternatively check
+`Revision` field in `/proc/cpuinfo` file and match to [this table][rpirev].
+
+To get temperature of Pi, check `/sys/class/thermal/thermal_zone0/temp` (divide by 1000 to get °C).
+
 
 # /boot/config.txt stuff
 
@@ -73,8 +84,10 @@ Currently available demos:
 
 `disable_overscan=0` - disables HDMI overscan
 
+
 [clang]: https://clang.llvm.org/
 [lld]: https://lld.llvm.org/
 [raspbian]: https://www.raspberrypi.org/downloads/raspbian/
 [alarm]: https://archlinuxarm.org/
 [pkgconfig]: https://www.freedesktop.org/wiki/Software/pkg-config/
+[rpirev]: https://elinux.org/RPi_HardwareHistory#Board_Revision_History
