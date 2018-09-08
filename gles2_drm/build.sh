@@ -2,10 +2,13 @@
 
 set -eu
 
-curl -Lf https://dri.freedesktop.org/libdrm/libdrm-2.4.94.tar.bz2 | tar -xj
-curl -Lf https://mesa.freedesktop.org/archive/mesa-18.2.0-rc5.tar.xz | tar -xJ
+LIBDRM_VERSION=2.4.94
+MESA_VERSION=18.2.0
 
-cd libdrm-2.4.94
+curl -Lf https://dri.freedesktop.org/libdrm/libdrm-${LIBDRM_VERSION}.tar.bz2 | tar -xj
+curl -Lf https://mesa.freedesktop.org/archive/mesa-${MESA_VERSION}.tar.xz | tar -xJ
+
+cd libdrm-${LIBDRM_VERSION}
 LDFLAGS="--sysroot=${SYSROOT} -Wl,-rpath=\\\$\$ORIGIN" \
 ./configure \
     --host=${TARGET} --enable-vc4 \
@@ -26,7 +29,7 @@ else
     DISABLE_ASM=--disable-asm
 fi
 
-cd mesa-18.2.0-rc5
+cd mesa-${MESA_VERSION}
 CFLAGS="-O2 -fPIC -Wall -fno-math-errno -fno-trapping-math -ffast-math -DDEFAULT_DRIVER_DIR=\\\"\\\$\$ORIGIN\\\"" \
 CXXFLAGS="${CFLAGS}" \
 LDFLAGS="--sysroot=${SYSROOT} -Wl,-rpath=\\\$\$ORIGIN" \
@@ -40,7 +43,7 @@ make -j`nproc`
 make -j`nproc` install DESTDIR="${SYSROOT}"
 cd ..
 
-rm -rf libdrm-2.4.94 mesa-18.2.0-rc5
+rm -rf libdrm-${LIBDRM_VERSION} mesa-${MESA_VERSION}
 
 for f in libgbm.so libglapi.so libEGL.so libGLESv2.so dri/vc4_dri.so;
 do
