@@ -15,12 +15,16 @@ For Raspbian do:
 
     ../sysroot.py --distro raspbian --sysroot "${SYSROOT}" zlib1g-dev libexpat1-dev
 
+For Ubuntu do:
+
+    ../sysroot.py --distro ubuntu --sysroot "${SYSROOT}" zlib1g-dev libexpat1-dev
+
 For Arch Linux ARM:
 
     ../sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" zlib expat
 
-Remember to install `zlib1g` and `libexpat1` for Raspbian or `zlib` and `expat` packages for Arch Linux ARM on
-your device.
+Remember to install `zlib1g` and `libexpat1` for Raspbian & Ubuntu or `zlib` and `expat` packages for
+Arch Linux ARM on your device.
 
 Now execute `./build.sh` script. This will download and build libdrm and mesa libraries in `${SYSROOT}/usr/local`.
 This script requires **chrpath** so it can modify rpath for newly built libraries.
@@ -31,9 +35,17 @@ When it finishes, upload them to your Raspberry Pi, in this example we will put 
 
 The libraries need to be placed in same folder as main executable. Then there will be no need to set LD_LIBRARY_PATH.
 
-Make sure you load open-source vc4 OpenGL driver on your Raspberry Pi. Check `/boot/config.txt` file,
-it should have `dtoverlay=vc4-fkms-v3d` line. This is not needed for 64-bit Arch Linux ARM, it loads vc4
-driver automatically.
+Make sure you load open-source vc4 OpenGL driver on your Raspberry Pi. On Raspbian or Arch Linux ARM
+check `/boot/config.txt` file, on Ubuntu check `/boot/firmware/config.txt`, it should have
+`dtoverlay=vc4-fkms-v3d` line. This is not needed for 64-bit Arch Linux ARM, it loads vc4 driver automatically.
+
+For Ubuntu you'll need skip u-boot bootloader because it does not load extra overlay for vc4. Edit
+`/boot/firmware/config.txt` and change `kernel` line to `kernel=vmlinuz`. Then comment out
+`device_tree_address` line - add `#` comment in front of it. Now copy overlay folder to boot partition:
+
+    sudo cp -r /lib/firmware/`uname -r`/device-tree/overlays /boot/firmware/
+
+More information [here][ubuntu_bootloader].
 
 # Building & running
 
@@ -51,3 +63,4 @@ Error handling is done using `assert`, feel free to change it when porting to yo
 [vc4]: https://dri.freedesktop.org/docs/drm/gpu/vc4.html
 [libdrm]: https://cgit.freedesktop.org/mesa/drm/
 [mesa]: https://www.mesa3d.org/
+[ubuntu_bootloader]: https://wiki.ubuntu.com/ARM/RaspberryPi#Change_the_bootloader

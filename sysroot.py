@@ -15,6 +15,10 @@ RASPBIAN_VERSION = "stretch"
 RASPBIAN_ARCHIVE = "http://archive.raspberrypi.org/debian"
 RASPBIAN_MAIN = "http://raspbian.raspberrypi.org/raspbian"
 
+UBUNTU_VERSION = "bionic"
+UBUNTU_MAIN = "http://ports.ubuntu.com/ubuntu-ports"
+UBUNTU_RPI = "http://ppa.launchpad.net/ubuntu-raspi2/ppa/ubuntu"
+
 ALARM = "http://mirror.archlinuxarm.org"
 ALARM_REPOS = ["alarm", "core", "extra", "community"]
 
@@ -24,8 +28,8 @@ IGNORED_PACKAGES = [
 ]
 
 # db is dict from package name to two element list - url and list of dependencies
-def raspbian_collect_packages(url, version, db):
-  with urlopen(f"{url}/dists/{version}/main/binary-armhf/Packages.gz") as req:
+def deb_collect_packages(url, version, section, db):
+  with urlopen(f"{url}/dists/{version}/{section}/binary-armhf/Packages.gz") as req:
     with GzipFile(fileobj=req) as gz:
       for line in gz:
         line = line.strip().decode("utf-8")
@@ -123,8 +127,17 @@ def install(distro, version, target, sysroot, packages):
     db = {}
 
     if distro == "raspbian":
-      raspbian_collect_packages(RASPBIAN_ARCHIVE, version, db)
-      raspbian_collect_packages(RASPBIAN_MAIN, version, db)
+      if version is None:
+        version = RASPBIAN_VERSION
+      deb_collect_packages(RASPBIAN_ARCHIVE, version, "main", db)
+      deb_collect_packages(RASPBIAN_MAIN, version, "main", db)
+
+    elif distro == "ubuntu":
+      if version is None:
+        version = UBUNTU_VERSION
+      deb_collect_packages(UBUNTU_RPI, version, "main", db)
+      for section in ["main", "universe"]:
+        deb_collect_packages(UBUNTU_MAIN, version, section, db)
 
     elif distro == "alarm":
       if target is None:
@@ -160,7 +173,7 @@ def install(distro, version, target, sysroot, packages):
     if not name.is_file():
       urlretrieve(url, name)
 
-      if distro == "raspbian":
+      if distro == "raspbian" or distro == "ubuntu":
         subprocess.check_call(["dpkg-deb", "-x", name, sysroot])
 
       elif distro == "alarm":
@@ -184,8 +197,8 @@ if __name__ == "__main__":
   from argparse import ArgumentParser
 
   ap = ArgumentParser(description="Download and install Raspbian packages to sysroot")
-  ap.add_argument("--distro", required=True, choices=["raspbian", "alarm"], help="distribution to use")
-  ap.add_argument("--version", default=RASPBIAN_VERSION, help=f"distribution version to use for raspbian (default: {RASPBIAN_VERSION})")
+  ap.add_argument("--distro", required=True, choices=["raspbian", "ubuntu", "alarm"], help="distribution to use")
+  ap.add_argument("--version", help=f"distribution version to use for raspbian/ubuntu (default: {RASPBIAN_VERSION}/{UBUNTU_VERSION})")
   ap.add_argument("--target", help="target to download for alarm (ex: armv6l-unknown-linux-gnueabihf)")
   ap.add_argument("--sysroot", required=True, help="sysroot folder")
   ap.add_argument("packages", nargs="+")

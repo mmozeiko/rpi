@@ -13,6 +13,7 @@ Usage: setup.sh <distro> <target>
 
 <distro>
     raspbian - uses Rasbian sysroot
+    ubuntu - uses Ubuntu sysroot
     alarm - uses Arch Linux ARM sysroot
 
 <target>
@@ -24,7 +25,7 @@ EOF
     return 1
 fi
 
-if [ "$1" == "raspbian" ]; then 
+if [ "$1" == "raspbian" ] || [ "$1" == "ubuntu" ]; then
     export TARGET=arm-linux-gnueabihf
 elif [ "$1" == "alarm" ]; then
     if [ "$2" == "pi1" ]; then
