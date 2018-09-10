@@ -16,7 +16,7 @@ typedef struct
 static const char* vertex_glsl =
     "attribute vec2 a_pos;              \n"
     "attribute vec4 a_color;            \n"
-    "varying lowp vec4 color;           \n"
+    "varying vec4 color;                \n"
     "                                   \n"
     "void main()                        \n"
     "{                                  \n"
@@ -26,7 +26,10 @@ static const char* vertex_glsl =
 ;
 
 static const char* fragment_glsl =
-    "varying lowp vec4 color; \n"
+    "#if GL_ES                \n"
+    "precision lowp vec4;     \n"
+    "#endif                   \n"
+    "varying vec4 color;      \n"
     "                         \n"
     "void main()              \n"
     "{                        \n"
