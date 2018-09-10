@@ -2,7 +2,8 @@
 
 Example how to do GLES2 rendering with Broadcom proprietary OpenGL driver.
 
-This driver is available in Raspbian and 32-bit based Arch Linux ARM (armv6 & armv7) distributions.
+This driver is available in Raspbian and 32-bit based Arch Linux ARM (armv6 & armv7) and
+Alpine Linux distributions.
 
 
 # Preparations
@@ -21,6 +22,10 @@ For Arch Linux ARM:
 
     ../sysroot.py --distro alarm --target "${TARGET}" --sysroot "${SYSROOT}" raspberrypi-firmware
 
+For Alpine Linux:
+
+    ../sysroot.py --distro alpine --target "${TARGET}" --sysroot "${SYSROOT}" raspberrypi-dev
+
 Make sure your Raspberry Pi has not loaded open-source vc4 OpenGL driver. On Raspbian or
 Arch Linux ARM check `/boot/config.txt` file, on Ubuntu check `/boot/firmware/config.txt`, it
 must not have `dtoverlay=vc4-fkms-v3d` or `dtoverlay=vc4-kms-v3d` setting enabled.
@@ -30,6 +35,17 @@ On Ubuntu you'll need to install proprietary OpenGL user-space libraries from ex
     sudo add-apt-repository ppa:ubuntu-raspi2/ppa
     sudo apt-get update
     sudo apt install libraspberrypi0
+
+On Alpine Linux install proprietary OpenGL user-space libraries:
+
+    sudo apk add raspberrypi-libs
+
+On Alpine Linux you'll need to add `/opt/vc/lib` folder to dynamic linker path when running
+binary. Do that with `LD_LIBRARY_PATH=/opt/vc/lib` environment variable before running binary,
+or add it permanently to library path by creating `/etc/ld-musl-armhf.path` file with following
+contents:
+
+    /opt/vc/lib:/lib:/usr/local/lib:/usr/lib
 
 
 # Building & running

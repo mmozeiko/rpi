@@ -10,7 +10,8 @@ all: ${EXE}
 
 run: ${EXE}
 	scp ${EXE} ${PI}:
-	ssh -t ${PI} ./${EXE}
+	@# LIBGL_DRIVERS_PATH is needed only for ALPINE
+	ssh -t ${PI} LIBGL_DRIVERS_PATH=. ./${EXE}
 
 clean:
 	rm -f ${EXE}

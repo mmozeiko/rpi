@@ -6,6 +6,7 @@ from gzip import GzipFile
 from pathlib import Path
 import subprocess 
 import tarfile
+import shutil
 import pickle
 import os
 
@@ -21,6 +22,9 @@ UBUNTU_RPI = "http://ppa.launchpad.net/ubuntu-raspi2/ppa/ubuntu"
 
 ALARM = "http://mirror.archlinuxarm.org"
 ALARM_REPOS = ["alarm", "core", "extra", "community"]
+
+ALPINE = "http://dl-cdn.alpinelinux.org/alpine"
+ALPINE_VERSION = "3.8"
 
 IGNORED_PACKAGES = [
   "raspberrypi-bootloader", "libasan3", "libubsan0", "libgomp1", "libatomic1",
@@ -98,6 +102,49 @@ def alarm_collect_packages(arch, repo, db):
           depends = []
 
 
+def alpine_collect_packages(version, repo, arch, db):
+  base = f"{ALPINE}/v{version}/{repo}/{arch}"
+  packages = {}
+  with urlopen(f"{base}/APKINDEX.tar.gz") as req:
+    with tarfile.open(fileobj=req, mode="r:gz") as tar:
+      for info in tar:
+        if info.name != "APKINDEX":
+          continue
+        name = None
+        version = None
+        depends = []
+        provides = []
+        for line in tar.extractfile(info):
+          line = line.strip().decode("utf-8")
+          if line.startswith("P:"):
+            name = line[2:]
+          elif line.startswith("V:"):
+            version = line[2:]
+          elif line.startswith("D:"):
+            depends = line[2:].split(" ")
+          elif line.startswith("p:"):
+            provides = line[2:].split(" ")
+          elif not line:
+            for p in provides:
+              p = p.split("<")[0].split(">")[0].split("=")[0]
+              packages[p] = [name, version, depends]
+            packages[name] = [name, version, depends]
+            name = None
+            version = None
+            depends = []
+            provides = []
+
+  for p,v in packages.items():
+    name, version, depends = v
+    url = f"{base}/{name}-{version}.apk"
+    deps = []
+    for d in depends:
+      d = d.split("<")[0].split(">")[0].split("=")[0]
+      if d in packages:
+        deps.append(packages[d][0])
+    db[name] = [url, deps]
+
+
 def resolve(package, packages, db):
   if package in packages:
     return
@@ -154,6 +201,20 @@ def install(distro, version, target, sysroot, packages):
       for repo in ALARM_REPOS:
         alarm_collect_packages(arch, repo, db)
      
+    elif distro == "alpine":
+      if version is None:
+        version = ALPINE_VERSION
+      if target is None:
+        raise Exception("ALPINE target not specified (use --target argument)")
+      elif target.startswith("aarch64"):
+        arch = "aarch64"
+      elif target.startswith("arm"):
+        arch = "armhf"
+      else:
+        raise Exception(f"Unsupported ALARM target {target}")
+
+      alpine_collect_packages(version, "main", arch, db)
+
     with open(cache, "wb") as f:
       pickle.dump(db, f, pickle.HIGHEST_PROTOCOL)
 
@@ -179,6 +240,15 @@ def install(distro, version, target, sysroot, packages):
       elif distro == "alarm":
         subprocess.check_call(["tar", "--force-local", "-C", sysroot, "-xJf", name], stderr=subprocess.DEVNULL)
 
+      elif distro == "alpine":
+        subprocess.check_call(["tar", "--force-local", "-C", sysroot, "-xzf", name], stderr=subprocess.DEVNULL)
+
+  # remove files that makes life difficult when cross-compiling for alpine
+  if distro == "alpine":
+    t = sysroot / "usr" / target
+    if t.is_dir():
+      shutil.rmtree(t)
+
   print("Fixing symlinks...")
 
   for p in sysroot.glob("**/*"):
@@ -197,9 +267,9 @@ if __name__ == "__main__":
   from argparse import ArgumentParser
 
   ap = ArgumentParser(description="Download and install Raspbian packages to sysroot")
-  ap.add_argument("--distro", required=True, choices=["raspbian", "ubuntu", "alarm"], help="distribution to use")
-  ap.add_argument("--version", help=f"distribution version to use for raspbian/ubuntu (default: {RASPBIAN_VERSION}/{UBUNTU_VERSION})")
-  ap.add_argument("--target", help="target to download for alarm (ex: armv6l-unknown-linux-gnueabihf)")
+  ap.add_argument("--distro", required=True, choices=["raspbian", "ubuntu", "alarm", "alpine"], help="distribution to use")
+  ap.add_argument("--version", help=f"distribution version to use for raspbian/ubuntu/alpine (default: {RASPBIAN_VERSION}/{UBUNTU_VERSION}/{ALPINE_VERSION})")
+  ap.add_argument("--target", help="target to download for alarm or alpine (ex: armv6l-unknown-linux-gnueabihf)")
   ap.add_argument("--sysroot", required=True, help="sysroot folder")
   ap.add_argument("packages", nargs="+")
   args = ap.parse_args()

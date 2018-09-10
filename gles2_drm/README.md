@@ -4,6 +4,7 @@ Example how to do GLES2 rendering with open-source [vc4] OpenGL driver by using 
 
 This is only way how to do hardware accelerated OpenGL rendering on 64-bit Arch Linux ARM.
 
+
 # Preparations
 
 We will build our own mesa library, to have the latest version and to not depend on X11 libraries. Raspbian mesa
@@ -23,8 +24,12 @@ For Arch Linux ARM:
 
     ../sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" zlib expat
 
+For Alpine Linux:
+
+    ../sysroot.py --distro alpine --sysroot "${SYSROOT}" --target "${TARGET}" zlib-dev expat-dev linux-headers
+
 Remember to install `zlib1g` and `libexpat1` for Raspbian & Ubuntu or `zlib` and `expat` packages for
-Arch Linux ARM on your device.
+Arch Linux ARM or `zlib`, `expat` and `libstdc++` for Alpine Linux on your device.
 
 Now execute `./build.sh` script. This will download and build libdrm and mesa libraries in `${SYSROOT}/usr/local`.
 This script requires **chrpath** so it can modify rpath for newly built libraries.
@@ -46,6 +51,7 @@ For Ubuntu you'll need skip u-boot bootloader because it does not load extra ove
     sudo cp -r /lib/firmware/`uname -r`/device-tree/overlays /boot/firmware/
 
 More information [here][ubuntu_bootloader].
+
 
 # Building & running
 

@@ -30,7 +30,7 @@ else
 fi
 
 cd mesa-${MESA_VERSION}
-CFLAGS="-O2 -fPIC -Wall -fno-math-errno -fno-trapping-math -ffast-math -DDEFAULT_DRIVER_DIR=\\\"\\\$\$ORIGIN\\\"" \
+CFLAGS="-O2 -fPIC -Wall -fno-math-errno -fno-trapping-math -DDEFAULT_DRIVER_DIR=\\\"\\\$\$ORIGIN\\\"" \
 CXXFLAGS="${CFLAGS}" \
 LDFLAGS="--sysroot=${SYSROOT} -Wl,-rpath=\\\$\$ORIGIN" \
 ./configure \

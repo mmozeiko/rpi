@@ -15,6 +15,7 @@ Usage: setup.sh <distro> <target>
     raspbian - uses Rasbian sysroot
     ubuntu - uses Ubuntu sysroot
     alarm - uses Arch Linux ARM sysroot
+    alpine - uses Alpine Linux sysroot
 
 <target>
     pi1 - armv6 code for Pi 0 and Pi 1
@@ -34,6 +35,15 @@ elif [ "$1" == "alarm" ]; then
         export TARGET=armv7l-unknown-linux-gnueabihf
     elif [ "$2" == "pi3-64" ]; then
         export TARGET=aarch64-unknown-linux-gnu
+    else
+        echo "ERROR: Unknown $2 target!"
+        return 1
+    fi
+elif [ "$1" == "alpine" ]; then
+    if [ "$2" == "pi1" ] || [ "$2" == "pi2" ] || [ "$2" == "pi3" ]; then
+        export TARGET=armv6-alpine-linux-musleabihf
+    elif [ "$2" == "pi3-64" ]; then
+        export TARGET=aarch64-alpine-linux-musl
     else
         echo "ERROR: Unknown $2 target!"
         return 1

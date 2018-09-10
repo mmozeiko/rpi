@@ -7,8 +7,8 @@ Various stuff with Raspberry Pi.
 
 Demos in this repository requires clang toolchain that can target your distribution.
 Following scripts will help you to compile clang on your GNU/Linux desktop for
-targeting Raspberry Pi with [Raspbian][raspbian], [Ubuntu][ubuntu] or
-[Arch Linux ARM][alarm] distributions:
+targeting Raspberry Pi with [Raspbian][raspbian], [Ubuntu][ubuntu],
+[Arch Linux ARM][alarm] or [Alpine Linux][alpine] distributions:
 
 * `setup.sh` - sets up generic environment variables for specific distribution and Pi
 * `sysroot.py` - unpacks raspbian or alarm packages in sysroot
@@ -18,9 +18,10 @@ First you need to set up environment variables by sourcing `setup.sh` file:
 
     source setup.sh <distro> <pi_version>
 
-Where `distro` is `raspbian` for Rasbian, `ubuntu` for Ubuntu, or `alarm` for Arch Linux ARM.
-`pi_version` is which Raspberry Pi you want to target - `pi1`, `pi2`, `pi3` or `pi3-64`.
-pi3-64 is available only for Arch Linux ARM.
+Where `distro` is `raspbian` for Rasbian, `ubuntu` for Ubuntu, `alarm` for Arch Linux ARM
+or `alpine` for Alpine Linux. `pi_version` is which Raspberry Pi you want to target -
+`pi1`, `pi2`, `pi3` or `pi3-64`. pi3-64 is available only for Arch Linux ARM and Alpine
+Linux.
 
 This script will also set necessary environment variables for [pkg-config][pkgconfig] to
 work - it will use only packages from sysroot folder, not from your host folder.
@@ -38,7 +39,11 @@ For Ubuntu:
 
 For Arch Linux ARM:
 
-    ./sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" glibc gcc
+    ./sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" gcc glibc
+
+For Alpine Linux:
+
+    ./sysroot.py --distro alpine --sysroot ${SYSROOT} --target ${TARGET} g++ musl-dev
 
 Make sure you have `dpkg-deb` executable available if you are targeting rasbian or ubuntu
 (on Arch install it from AUR).
@@ -46,7 +51,8 @@ Make sure you have `dpkg-deb` executable available if you are targeting rasbian 
 This script will create `sysroot` folder with development header files and libraries targeting
 your choice of distribution and target architecutre. You'll need to repeat this process in case
 you run `setup.sh` again with different distro/pi_version arguments. Each sysroot is setup
-in separate folder.
+in separate folder. Package resolving is very simplified and may fail on complex dependencies,
+also it **DOES NOT** verify integrity of downloaded packages, be careful!
 
 Now execute `bootstrap.sh` script to compile clang:
 
@@ -95,5 +101,6 @@ To get temperature of Pi, check `/sys/class/thermal/thermal_zone0/temp` (divide 
 [raspbian]: https://www.raspberrypi.org/downloads/raspbian/
 [ubuntu]: https://wiki.ubuntu.com/ARM/RaspberryPi
 [alarm]: https://archlinuxarm.org/
+[alpine]: https://alpinelinux.org
 [pkgconfig]: https://www.freedesktop.org/wiki/Software/pkg-config/
 [rpirev]: https://elinux.org/RPi_HardwareHistory#Board_Revision_History
