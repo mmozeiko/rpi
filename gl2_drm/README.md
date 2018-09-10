@@ -12,7 +12,8 @@ Main differences from setting up GLES2 context:
 
 * use `EGL_OPENGL_API` when calling `eglBindAPI`
 * use `EGL_OPENGL_BIT` for `EGL_RENDERABLE_TYPE` when choosing config
-* load GL functions with `eglGetProcAddress` because mesa does not have libGL.so for non-X11 builds
+* load GL functions with `eglGetProcAddress` because mesa does not have libGL.so for non-X11 builds,
+  [more info][mesa-gl-no-x11]
 * GLSL shader differences - no precision qualifiers in non-ES GLSL language (for GL 2.1 version)
 
 
@@ -32,3 +33,4 @@ Error handling is done using `assert`, feel free to change it when porting to yo
 [vc4]: https://dri.freedesktop.org/docs/drm/gpu/vc4.html
 [libdrm]: https://cgit.freedesktop.org/mesa/drm/
 [mesa]: https://www.mesa3d.org/
+[mesa-gl-no-x11]: https://lists.freedesktop.org/archives/mesa-users/2014-February/000770.html
