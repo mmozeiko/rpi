@@ -27,7 +27,7 @@ static const char* vertex_glsl =
 
 static const char* fragment_glsl =
     "#if GL_ES                \n"
-    "precision lowp vec4;     \n"
+    "precision lowp float;    \n"
     "#endif                   \n"
     "varying vec4 color;      \n"
     "                         \n"
