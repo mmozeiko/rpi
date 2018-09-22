@@ -21,5 +21,5 @@ run: ${EXE}
 clean:
 	rm -f ${EXE}
 
-${EXE}: ${SRC} makefile
+${EXE}: ${SRC} makefile ../common/render.h
 	"${CC}" -Os -s -Wall -Wextra -Wl,-rpath,'$$ORIGIN' -Ikhronos ${DEPENDENCIES} -lm -ldl -o $@ $<

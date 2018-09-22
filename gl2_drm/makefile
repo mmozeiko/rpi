@@ -16,5 +16,5 @@ run: ${EXE}
 clean:
 	rm -f ${EXE}
 
-${EXE}: ${SRC} makefile
+${EXE}: ${SRC} makefile ../common/render.h
 	"${CC}" -Os -s -Wall -Wextra -lm -Wl,-rpath,'$$ORIGIN' ${DEPENDENCIES} -o $@ $<
