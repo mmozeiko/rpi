@@ -47,18 +47,35 @@ struct egl
 
 static void drm_init(struct drm* drm)
 {
-    drm->fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
-    if (drm->fd < 0)
+    drmModeRes* resources = NULL;
+    for (uint32_t i=0; /* empty */; i++)
     {
-        assert(errno != ENOENT && "DRI device not found, have you enabled vc4 driver in /boot/config.txt file?");
-        assert(errno != EACCES && "no permission to open DRI device, is your user in 'video' group?");
-        assert(!"cannot open DRI device");
+        char path[32];
+        sprintf(path, "/dev/dri/card%u", i);
+
+        drm->fd = open(path, O_RDWR | O_CLOEXEC);
+        if (drm->fd < 0)
+        {
+            if (i == 0)
+            {
+                 assert(errno != ENOENT && "DRI device not found, have you enabled vc4 driver in /boot/config.txt file?");
+            }
+            else
+            {
+                if (errno == ENOENT)
+                {
+                    break;
+                }
+            }
+            assert(errno != EACCES && "no permission to open DRI device, is your user in 'video' group?");
+        }
+        resources = drmModeGetResources(drm->fd);
+        if (resources != NULL)
+        {
+            break;
+        }
     }
-
-    drm->device = gbm_create_device(drm->fd);
-    assert(drm->device && "cannot create GBM device");
-
-    drmModeRes* resources = drmModeGetResources(drm->fd);
+    assert(drm->fd > 0 && "cannot open DRI device");
     assert(resources && "cannot get device resources");
 
     drmModeConnector* connector = NULL;
@@ -97,11 +114,14 @@ static void drm_init(struct drm* drm)
     drm->crtc = drmModeGetCrtc(drm->fd, encoder->crtc_id);
     assert(drm->crtc && "cannot get current CRTC");
 
-    // printf("Display mode = %ux%u@%u\n", drm->crtc->width, drm->crtc->height, drm->crtc->mode.vrefresh);
+    printf("Display mode = %ux%u@%u\n", drm->crtc->width, drm->crtc->height, drm->crtc->mode.vrefresh);
 
     drmModeFreeEncoder(encoder);
     drmModeFreeConnector(connector);
     drmModeFreeResources(resources);
+
+    drm->device = gbm_create_device(drm->fd);
+    assert(drm->device && "cannot create GBM device");
 
     uint32_t surface_format = GBM_FORMAT_XRGB8888;
     uint32_t surface_flags = GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING;
@@ -137,7 +157,7 @@ static void drm_done(struct drm* drm)
 static void egl_init(struct drm* drm, struct egl* egl)
 {
     // assume EGL_EXT_client_extensions is available
-    // printf("EGL client extension = %s\n", eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
+    printf("EGL client extension = %s\n", eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
 
     // assume EGL_EXT_platform_base is available
     PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = (void*)eglGetProcAddress("eglGetPlatformDisplayEXT");
@@ -151,10 +171,10 @@ static void egl_init(struct drm* drm, struct egl* egl)
     EGLBoolean ok = eglInitialize(egl->display, &major, &minor);
     assert(ok && "cannot initialize EGL display");
 
-    // printf("EGL_VENDOR = %s\n", eglQueryString(display, EGL_VENDOR));
-    // printf("EGL_VERSION = %s\n", eglQueryString(display, EGL_VERSION));
-    // printf("EGL_CLIENT_APIS = %s\n", eglQueryString(display, EGL_CLIENT_APIS));
-    // printf("EGL_EXTENSIONS = %s\n", eglQueryString(display, EGL_EXTENSIONS));
+    printf("EGL_VENDOR = %s\n", eglQueryString(egl->display, EGL_VENDOR));
+    printf("EGL_VERSION = %s\n", eglQueryString(egl->display, EGL_VERSION));
+    printf("EGL_CLIENT_APIS = %s\n", eglQueryString(egl->display, EGL_CLIENT_APIS));
+    printf("EGL_EXTENSIONS = %s\n", eglQueryString(egl->display, EGL_EXTENSIONS));
 
     ok = eglBindAPI(EGL_OPENGL_ES_API);
     assert(ok && "cannot use OpenGL ES API");
@@ -341,10 +361,10 @@ int main()
     drm_init(&drm);
     egl_init(&drm, &egl);
 
-    // printf("GL_VENDOR = %s\n", glGetString(GL_VENDOR));
-    // printf("GL_RENDERER = %s\n", glGetString(GL_RENDERER));
-    // printf("GL_VERSION = %s\n", glGetString(GL_VERSION));
-    // printf("GL_EXTENSIONS = %s\n", glGetString(GL_EXTENSIONS));
+    printf("GL_VENDOR = %s\n", glGetString(GL_VENDOR));
+    printf("GL_RENDERER = %s\n", glGetString(GL_RENDERER));
+    printf("GL_VERSION = %s\n", glGetString(GL_VERSION));
+    printf("GL_EXTENSIONS = %s\n", glGetString(GL_EXTENSIONS));
 
     printf("rendering...\n");
 

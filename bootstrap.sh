@@ -4,21 +4,20 @@ set -eu
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+LLVM_VERSION=8.0.1
+
 mkdir -p "${TOOLCHAIN}"
 mkdir -p "${ROOT}"/{llvm.src,llvm.build}
 mkdir -p "${ROOT}"/llvm.src/tools/{clang,lld}
 
-curl -Lf https://releases.llvm.org/7.0.0/llvm-7.0.0.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src --strip-components=1
-curl -Lf https://releases.llvm.org/7.0.0/cfe-7.0.0.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src/tools/clang --strip-components=1
-curl -Lf https://releases.llvm.org/7.0.0/lld-7.0.0.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src/tools/lld --strip-components=1
+curl -Lf https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src --strip-components=1
+curl -Lf https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src/tools/clang --strip-components=1
+curl -Lf https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/lld-${LLVM_VERSION}.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src/tools/lld --strip-components=1
 
 # patching lld to work for armv6
 # more info: https://reviews.llvm.org/D50076 & https://reviews.llvm.org/D50077
-curl -Lf https://reviews.llvm.org/D50076?download=true | patch -p0 -d "${ROOT}"/llvm.src/tools/lld
-curl -Lf https://reviews.llvm.org/D50077?download=true | patch -p2 -d "${ROOT}"/llvm.src/tools/lld
-
-# we don't need these set when building clang for host
-unset CC CXX
+#curl -Lf https://reviews.llvm.org/D50076?download=true | patch -p0 -d "${ROOT}"/llvm.src/tools/lld
+#curl -Lf https://reviews.llvm.org/D50077?download=true | patch -p2 -d "${ROOT}"/llvm.src/tools/lld
 
 cd "${ROOT}"/llvm.build
 cmake "${ROOT}"/llvm.src \

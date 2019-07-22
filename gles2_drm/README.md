@@ -32,11 +32,12 @@ Remember to install `zlib1g` and `libexpat1` for Raspbian & Ubuntu or `zlib` and
 Arch Linux ARM or `zlib`, `expat` and `libstdc++` for Alpine Linux on your device.
 
 Now execute `./build.sh` script. This will download and build libdrm and mesa libraries in `${SYSROOT}/usr/local`.
-This script requires **chrpath** so it can modify rpath for newly built libraries.
+Extra build dependencies for host machine are: [meson][meson], [ninja][ninja] [python-mako][python-mako], and
+[patchelf][patchelf].
 
 When it finishes, upload them to your Raspberry Pi, in this example we will put them in home folder:
 
-    scp "${SYSROOT}"/usr/local/lib/{libdrm.so.2,libgbm.so.1,libglapi.so.0,libEGL.so.1,libGLESv2.so.2,dri/vc4_dri.so} pi@raspberrypi.local:
+    scp "${SYSROOT}"/usr/local/lib/{libdrm.so.2,libgbm.so.1,libglapi.so.0,libEGL.so.1,libGLESv2.so.2,dri/vc4_dri.so,dri/v3d_dri.so} pi@raspberrypi.local:
 
 The libraries need to be placed in same folder as main executable. Then there will be no need to set LD_LIBRARY_PATH.
 
@@ -70,3 +71,7 @@ Error handling is done using `assert`, feel free to change it when porting to yo
 [libdrm]: https://cgit.freedesktop.org/mesa/drm/
 [mesa]: https://www.mesa3d.org/
 [ubuntu_bootloader]: https://wiki.ubuntu.com/ARM/RaspberryPi#Change_the_bootloader
+[patchelf]: https://nixos.org/patchelf.html
+[meson]: https://mesonbuild.com/
+[ninja]: https://ninja-build.org/
+[python-mako]: https://www.makotemplates.org/

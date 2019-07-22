@@ -2,6 +2,8 @@
 
 PI=pi@raspberrypi.local
 
+CC="${TOOLCHAIN}"/rpi-clang
+
 SRC=gles2_bcm.c
 EXE=gles2_bcm.exe
 ifeq (0,$(shell pkg-config --exists bcm_host; echo $$?))
@@ -21,4 +23,4 @@ clean:
 	rm -f ${EXE}
 
 ${EXE}: ${SRC} makefile ../common/render.h
-	"${CC}" -Os -s -Wall -Wextra -lm ${DEPENDENCIES} -o $@ $<
+	${CC} -Os -s -Wall -Wextra -lm ${DEPENDENCIES} -o $@ $<

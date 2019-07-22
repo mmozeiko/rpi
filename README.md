@@ -5,9 +5,9 @@ Various stuff with Raspberry Pi.
 
 # Setting up toolchain
 
-Demos in this repository requires clang toolchain that can target your distribution.
-Following scripts will help you to compile clang on your GNU/Linux desktop for
-targeting Raspberry Pi with [Raspbian][raspbian], [Ubuntu][ubuntu],
+Demos in this repository requires clang toolchain that targets your Raspberry Pi
+distribution. Following scripts will help you to compile clang on GNU/Linux desktop
+for targeting Raspberry Pi with [Raspbian][raspbian], [Ubuntu][ubuntu],
 [Arch Linux ARM][alarm] or [Alpine Linux][alpine] distributions:
 
 * `setup.sh` - sets up generic environment variables for specific distribution and Pi
@@ -20,8 +20,8 @@ First you need to set up environment variables by sourcing `setup.sh` file:
 
 Where `distro` is `raspbian` for Rasbian, `ubuntu` for Ubuntu, `alarm` for Arch Linux ARM
 or `alpine` for Alpine Linux. `pi_version` is which Raspberry Pi you want to target -
-`pi1`, `pi2`, `pi3` or `pi3-64`. pi3-64 is available only for Arch Linux ARM and Alpine
-Linux.
+`pi1`, `pi2`, `pi3`, `pi3-64` or `pi4`. pi3-64 is available only for Arch Linux ARM and
+Alpine Linux.  pi4 is tested only on Arch Linux ARM and Raspbian.
 
 This script will also set necessary environment variables for [pkg-config][pkgconfig] to
 work - it will use only packages from sysroot folder, not from your host folder.

@@ -12,7 +12,7 @@ import os
 
 # WARNING: this script does not verify integrity and signature of packages!
 
-RASPBIAN_VERSION = "stretch"
+RASPBIAN_VERSION = "buster"
 RASPBIAN_ARCHIVE = "http://archive.raspberrypi.org/debian"
 RASPBIAN_MAIN = "http://raspbian.raspberrypi.org/raspbian"
 
@@ -23,8 +23,8 @@ UBUNTU_RPI = "http://ppa.launchpad.net/ubuntu-raspi2/ppa/ubuntu"
 ALARM = "http://mirror.archlinuxarm.org"
 ALARM_REPOS = ["alarm", "core", "extra", "community"]
 
+ALPINE_VERSION = "3.10"
 ALPINE = "http://dl-cdn.alpinelinux.org/alpine"
-ALPINE_VERSION = "3.8"
 
 IGNORED_PACKAGES = [
   "raspberrypi-bootloader", "libasan3", "libubsan0", "libgomp1", "libatomic1",
