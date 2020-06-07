@@ -23,6 +23,7 @@ Usage: setup.sh <distro> <target>
     pi3 - armv7 code for Pi 3
     pi3-64 - armv8 code for Pi 3
     pi4 - armv7 code for Pi 4
+    pi4-64 - armv8 code for Pi 4
 EOF
     return 1
 fi
@@ -34,7 +35,7 @@ elif [ "$1" == "alarm" ]; then
         export TARGET=armv6l-unknown-linux-gnueabihf
     elif [ "$2" == "pi2" ] || [ "$2" == "pi3" ] || [ "$2" == "pi4" ]; then
         export TARGET=armv7l-unknown-linux-gnueabihf
-    elif [ "$2" == "pi3-64" ]; then
+    elif [ "$2" == "pi3-64" ] || [ "$2" == "pi4-64" ]; then
         export TARGET=aarch64-unknown-linux-gnu
     else
         echo "ERROR: Unknown $2 target!"
@@ -43,7 +44,7 @@ elif [ "$1" == "alarm" ]; then
 elif [ "$1" == "alpine" ]; then
     if [ "$2" == "pi1" ] || [ "$2" == "pi2" ] || [ "$2" == "pi3" ]; then
         export TARGET=armv6-alpine-linux-musleabihf
-    elif [ "$2" == "pi3-64" ]; then
+    elif [ "$2" == "pi3-64" ] || [ "$2" == "pi3-64" ]; then
         export TARGET=aarch64-alpine-linux-musl
     else
         echo "ERROR: Unknown $2 target!"
@@ -69,6 +70,9 @@ elif [ "$2" == "pi3-64" ]; then
 elif [ "$2" == "pi4" ]; then
     RPI_CFLAGS="-mcpu=cortex-a72 -mfpu=neon-fp-armv8 -mthumb"
     MESON_CPU="armv7hl"
+elif [ "$2" == "pi4-64" ]; then
+    RPI_CFLAGS="-mcpu=cortex-a72"
+    MESON_CPU="aarch64"
 else
     echo "ERROR: Unknown $2 target!"
     return 1

@@ -20,8 +20,9 @@ First you need to set up environment variables by sourcing `setup.sh` file:
 
 Where `distro` is `raspbian` for Rasbian, `ubuntu` for Ubuntu, `alarm` for Arch Linux ARM
 or `alpine` for Alpine Linux. `pi_version` is which Raspberry Pi you want to target -
-`pi1`, `pi2`, `pi3`, `pi3-64` or `pi4`. pi3-64 is available only for Arch Linux ARM and
-Alpine Linux.  pi4 is tested only on Arch Linux ARM and Raspbian.
+`pi1`, `pi2`, `pi3`, `pi3-64`, `pi4` or `pi4-64`. pi3-64 is available only for Arch Linux ARM
+and Alpine Linux.  pi4 is tested only on Arch Linux ARM and Raspbian. pi4-64 is tested only
+on Arch Linux ARM.
 
 This script will also set necessary environment variables for [pkg-config][pkgconfig] to
 work - it will use only packages from sysroot folder, not from your host folder.

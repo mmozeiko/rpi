@@ -23,12 +23,13 @@ UBUNTU_RPI = "http://ppa.launchpad.net/ubuntu-raspi2/ppa/ubuntu"
 ALARM = "http://mirror.archlinuxarm.org"
 ALARM_REPOS = ["alarm", "core", "extra", "community"]
 
-ALPINE_VERSION = "3.10"
+ALPINE_VERSION = "3.12"
 ALPINE = "http://dl-cdn.alpinelinux.org/alpine"
 
 IGNORED_PACKAGES = [
   "raspberrypi-bootloader", "libasan3", "libubsan0", "libgomp1", "libatomic1",
-  "sh", "filesystem", "tzdata", "iana-etc",
+  "sh", "filesystem", "tzdata", "iana-etc", "libncursesw.so", "libp11-kit.so",
+  "libsystemd.so", "libidn2.so", "libacl.so"
 ]
 
 # db is dict from package name to two element list - url and list of dependencies

@@ -2,10 +2,10 @@
 
 set -eu
 
-LIBDRM_VERSION=2.4.99
-MESA_VERSION=19.1.2
+LIBDRM_VERSION=2.4.102
+MESA_VERSION=20.1.0
 
-curl -Lf https://dri.freedesktop.org/libdrm/libdrm-${LIBDRM_VERSION}.tar.bz2 | tar -xj
+curl -Lf https://dri.freedesktop.org/libdrm/libdrm-${LIBDRM_VERSION}.tar.xz | tar -xJ
 curl -Lf https://mesa.freedesktop.org/archive/mesa-${MESA_VERSION}.tar.xz | tar -xJ
 
 cd libdrm-${LIBDRM_VERSION}
@@ -41,6 +41,6 @@ rm -rf libdrm-${LIBDRM_VERSION} mesa-${MESA_VERSION}
 
 for f in libgbm.so libglapi.so libEGL.so libGLESv2.so dri/v3d_dri.so dri/vc4_dri.so;
 do
-  "${TOOLCHAIN}"/bin/llvm-objcopy -strip-unneeded `realpath "${SYSROOT}"/usr/local/lib/"${f}"`
+  "${TOOLCHAIN}"/bin/llvm-objcopy --strip-unneeded `realpath "${SYSROOT}"/usr/local/lib/"${f}"`
   patchelf --set-rpath '$ORIGIN' "${SYSROOT}"/usr/local/lib/"${f}"
 done

@@ -4,14 +4,14 @@ set -eu
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-LLVM_VERSION=8.0.1
+LLVM_VERSION=10.0.0
 
 mkdir -p "${TOOLCHAIN}"
 mkdir -p "${ROOT}"/{llvm.src,llvm.build}
 mkdir -p "${ROOT}"/llvm.src/tools/{clang,lld}
 
 curl -Lf https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src --strip-components=1
-curl -Lf https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src/tools/clang --strip-components=1
+curl -Lf https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/clang-${LLVM_VERSION}.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src/tools/clang --strip-components=1
 curl -Lf https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/lld-${LLVM_VERSION}.src.tar.xz | tar -xJ -C "${ROOT}"/llvm.src/tools/lld --strip-components=1
 
 # patching lld to work for armv6

@@ -22,7 +22,7 @@ For Ubuntu do:
 
 For Arch Linux ARM:
 
-    ../sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" zlib expat
+    ../sysroot.py --distro alarm --sysroot "${SYSROOT}" --target "${TARGET}" zlib expat gcc
 
 For Alpine Linux:
 
@@ -44,6 +44,8 @@ The libraries need to be placed in same folder as main executable. Then there wi
 Make sure you load open-source vc4 OpenGL driver on your Raspberry Pi. On Raspbian or Arch Linux ARM
 check `/boot/config.txt` file, on Ubuntu check `/boot/firmware/config.txt`, it should have
 `dtoverlay=vc4-fkms-v3d` line. This is not needed for 64-bit Arch Linux ARM, it loads vc4 driver automatically.
+For Raspberry Pi 4 add `dtoverlay=vc4-kms-v3d-pi4` instead.
+
 
 For Ubuntu you'll need skip u-boot bootloader because it does not load extra overlay for vc4. Edit
 `/boot/firmware/config.txt` and change `kernel` line to `kernel=vmlinuz`. Then comment out
