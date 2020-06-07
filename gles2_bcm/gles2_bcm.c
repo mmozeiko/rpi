@@ -82,7 +82,7 @@ static void bcm_done(struct bcm* bcm)
 
 static void egl_init(struct bcm* bcm, struct egl* egl)
 {
-    // printf("EGL client extension = %s\n", eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
+    printf("EGL client extensions = %s\n", eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
 
     // if this function fails with "* failed to add service - already in use?" text on output
     // this probably means you have vc4 driver loaded in /boot/config.txt, remove it
@@ -169,10 +169,10 @@ int main()
     bcm_init(&bcm);
     egl_init(&bcm, &egl);
 
-    // printf("GL_VENDOR = %s\n", glGetString(GL_VENDOR));
-    // printf("GL_RENDERER = %s\n", glGetString(GL_RENDERER));
-    // printf("GL_VERSION = %s\n", glGetString(GL_VERSION));
-    // printf("GL_EXTENSIONS = %s\n", glGetString(GL_EXTENSIONS));
+    printf("GL_VENDOR = %s\n", glGetString(GL_VENDOR));
+    printf("GL_RENDERER = %s\n", glGetString(GL_RENDERER));
+    printf("GL_VERSION = %s\n", glGetString(GL_VERSION));
+    printf("GL_EXTENSIONS = %s\n", glGetString(GL_EXTENSIONS));
 
     printf("rendering...\n");
 

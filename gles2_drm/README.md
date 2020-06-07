@@ -32,7 +32,7 @@ Remember to install `zlib1g` and `libexpat1` for Raspbian & Ubuntu or `zlib` and
 Arch Linux ARM or `zlib`, `expat` and `libstdc++` for Alpine Linux on your device.
 
 Now execute `./build.sh` script. This will download and build libdrm and mesa libraries in `${SYSROOT}/usr/local`.
-Extra build dependencies for host machine are: [meson][meson], [ninja][ninja] [python-mako][python-mako], and
+Extra build dependencies for host machine are: [meson][meson], [ninja][ninja], [python-mako][python-mako], and
 [patchelf][patchelf].
 
 When it finishes, upload them to your Raspberry Pi, in this example we will put them in home folder:

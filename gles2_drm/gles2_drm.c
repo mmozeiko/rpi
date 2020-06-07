@@ -157,7 +157,7 @@ static void drm_done(struct drm* drm)
 static void egl_init(struct drm* drm, struct egl* egl)
 {
     // assume EGL_EXT_client_extensions is available
-    printf("EGL client extension = %s\n", eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
+    printf("EGL client extensions = %s\n", eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
 
     // assume EGL_EXT_platform_base is available
     PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = (void*)eglGetProcAddress("eglGetPlatformDisplayEXT");

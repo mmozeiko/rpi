@@ -387,7 +387,7 @@ static void context_init(struct context* ctx)
     }
 
     const char* client_extension = api.eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
-    // printf("EGL client extenions = %s\n", client_extension);
+    printf("EGL client extensions = %s\n", client_extension);
 
     if (api.bcm)
     {
@@ -410,10 +410,10 @@ static void context_init(struct context* ctx)
     EGLBoolean ok = api.eglInitialize(ctx->egl_display, &major, &minor);
     assert(ok && "cannot initialize EGL display");
 
-    // printf("EGL_VENDOR = %s\n", api.eglQueryString(ctx->egl_display, EGL_VENDOR));
-    // printf("EGL_VERSION = %s\n", api.eglQueryString(ctx->egl_display, EGL_VERSION));
-    // printf("EGL_CLIENT_APIS = %s\n", api.eglQueryString(ctx->egl_display, EGL_CLIENT_APIS));
-    // printf("EGL_EXTENSIONS = %s\n", api.eglQueryString(ctx->egl_display, EGL_EXTENSIONS));
+    printf("EGL_VENDOR = %s\n", api.eglQueryString(ctx->egl_display, EGL_VENDOR));
+    printf("EGL_VERSION = %s\n", api.eglQueryString(ctx->egl_display, EGL_VERSION));
+    printf("EGL_CLIENT_APIS = %s\n", api.eglQueryString(ctx->egl_display, EGL_CLIENT_APIS));
+    printf("EGL_EXTENSIONS = %s\n", api.eglQueryString(ctx->egl_display, EGL_EXTENSIONS));
 
     ok = api.eglBindAPI(EGL_OPENGL_ES_API);
     assert(ok && "cannot use OpenGL ES API with EGL");
@@ -659,10 +659,10 @@ int main()
 GL_FUNCTIONS
 #undef X
 
-    // printf("GL_VENDOR = %s\n", glGetString(GL_VENDOR));
-    // printf("GL_RENDERER = %s\n", glGetString(GL_RENDERER));
-    // printf("GL_VERSION = %s\n", glGetString(GL_VERSION));
-    // printf("GL_EXTENSIONS = %s\n", glGetString(GL_EXTENSIONS));
+    printf("GL_VENDOR = %s\n", glGetString(GL_VENDOR));
+    printf("GL_RENDERER = %s\n", glGetString(GL_RENDERER));
+    printf("GL_VERSION = %s\n", glGetString(GL_VERSION));
+    printf("GL_EXTENSIONS = %s\n", glGetString(GL_EXTENSIONS));
 
     printf("rendering...\n");
 
