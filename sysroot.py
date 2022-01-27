@@ -146,11 +146,34 @@ def alpine_collect_packages(version, repo, arch, db):
     db[name] = [url, deps]
 
 
+subs = {
+        'libbz2.so': 'bzip2',
+        'libbrotlidec.so': 'brotli',
+        'libcom_err.so': 'e2fsprogs',
+        'libgssapi_krb5.so': 'krb5',
+        'libss.so': 'e2fsprogs',
+        'libcrypt.so': 'libxcrypt',
+}
+
+def guess_alias(package, db):
+    result = subs.get(package)
+    if result is not None:
+        return result
+    if package.endswith(".so"):
+        guess = package.removesuffix(".so")
+        if db.get(guess):
+            return guess
+        guess = guess.removeprefix("lib")
+        if db.get(guess):
+            return guess
+    return package
+
 def resolve(package, packages, db):
+  package = guess_alias(package, db)
   if package in packages:
     return
   packages.add(package)
-  for dep in db[package][1]:
+  for dep in db.get(package, [[], []])[1]:
     if dep not in IGNORED_PACKAGES:
       resolve(dep, packages, db)
 
